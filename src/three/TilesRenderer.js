@@ -3,6 +3,7 @@ import { B3DMLoader } from './B3DMLoader.js';
 import { PNTSLoader } from './PNTSLoader.js';
 import { I3DMLoader } from './I3DMLoader.js';
 import { CMPTLoader } from './CMPTLoader.js';
+import { CustomTileParser } from './CustomTileParser.js';
 import { TilesGroup } from './TilesGroup.js';
 import {
 	Matrix4,
@@ -81,6 +82,8 @@ export class TilesRenderer extends TilesRendererBase {
 		this.onLoadModel = null;
 		this.onDisposeModel = null;
 
+		this.tileContentParsers = new Map();
+
 		const manager = new LoadingManager();
 		manager.setURLModifier( url => {
 
@@ -109,6 +112,11 @@ export class TilesRenderer extends TilesRendererBase {
 			}
 
 		};
+
+		// Register standard 3d tiles formats
+		this.registerTileContentParser( 'b3dm', B3DMLoader );
+		this.registerTileContentParser( 'i3dm', I3DMLoader );
+		this.registerTileContentParser( 'cmpt', CMPTLoader );
 
 	}
 
@@ -561,6 +569,20 @@ export class TilesRenderer extends TilesRendererBase {
 
 	}
 
+	registerTileContentParser( extension, parserConstructor ) {
+
+		if ( this.tileContentParsers.has( extension ) ) {
+
+			console.warn( `TilesRenderer: Content type "${ extension }" already registered.` );
+
+		} else {
+
+			this.tileContentParsers.set( extension, parserConstructor );
+
+		}
+
+	}
+
 	parseTile( buffer, tile, extension ) {
 
 		tile._loadIndex = tile._loadIndex || 0;
@@ -572,55 +594,37 @@ export class TilesRenderer extends TilesRendererBase {
 		const workingPath = uriSplits.join( '/' );
 		const fetchOptions = this.fetchOptions;
 
+		const contentExtensionLoaders = this.tileContentParsers;
 		const manager = this.manager;
 		const loadIndex = tile._loadIndex;
 		let promise = null;
 
-		switch ( extension ) {
+		if ( contentExtensionLoaders.has( extension ) ) {
 
-			case 'b3dm':
-				const loader = new B3DMLoader( manager );
-				loader.workingPath = workingPath;
-				loader.fetchOptions = fetchOptions;
-				promise = loader
-					.parse( buffer )
-					.then( res => res.scene );
-				break;
+			const loaderType = contentExtensionLoaders.get( extension );
+			const loader = new loaderType( manager, extension );
+			loader.workingPath = workingPath;
+			loader.fetchOptions = fetchOptions;
+			promise = loader
+				.parse( buffer )
+				.then( res => res.scene );
 
-			case 'pnts':
-				promise = Promise.resolve( new PNTSLoader( manager ).parse( buffer ).scene );
-				break;
+		} else {
 
-			case 'i3dm': {
+			switch ( extension ) {
 
-				const loader = new I3DMLoader( manager );
-				loader.workingPath = workingPath;
-				loader.fetchOptions = fetchOptions;
-				promise = loader
-					.parse( buffer )
-					.then( res => res.scene );
+				case 'pnts':
 
-				break;
+					promise = Promise.resolve( new PNTSLoader( manager ).parse( buffer ).scene );
+					break;
 
-			}
+				default:
 
-			case 'cmpt': {
-
-				const loader = new CMPTLoader( manager );
-				loader.workingPath = workingPath;
-				loader.fetchOptions = fetchOptions;
-				promise = loader
-					.parse( buffer )
-					.then( res => res.scene	);
-
-				break;
+					console.warn( `TilesRenderer: Content type "${ extension }" not supported.` );
+					promise = Promise.resolve( null );
+					break;
 
 			}
-
-			default:
-				console.warn( `TilesRenderer: Content type "${ extension }" not supported.` );
-				promise = Promise.resolve( null );
-				break;
 
 		}
 

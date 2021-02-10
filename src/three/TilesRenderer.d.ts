@@ -2,6 +2,8 @@ import { Box3, Camera, Vector2, Matrix4, WebGLRenderer, Object3D, LoadingManager
 import { TilesRendererBase } from '../base/TilesRendererBase';
 import { TilesGroup } from './TilesGroup';
 
+type LoaderConstructor = new ( manager?: LoadingManager, extension?: string ) => LoaderConstructor;
+
 export class TilesRenderer extends TilesRendererBase {
 
 	autoDisableRendererCulling : Boolean;
@@ -11,7 +13,7 @@ export class TilesRenderer extends TilesRendererBase {
 
 	group : TilesGroup;
 
-	getBoundsTransform(target: Matrix4) : Boolean;
+	getBoundsTransform( target: Matrix4 ) : Boolean;
 
 	getBounds( box : Box3 ) : Boolean;
 
@@ -28,5 +30,7 @@ export class TilesRenderer extends TilesRendererBase {
 	onLoadTileSet : ( ( tileSet : object ) => void ) | null;
 	onLoadModel : ( ( scene : Object3D, tile : object ) => void ) | null;
 	onDisposeModel : ( ( scene : Object3D, tile : object ) => void ) | null;
+
+	registerTileContentParser( extension: string, constructor: LoaderConstructor ) : void;
 
 }
