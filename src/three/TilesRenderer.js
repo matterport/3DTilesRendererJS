@@ -3,6 +3,7 @@ import { B3DMLoader } from './B3DMLoader.js';
 import { PNTSLoader } from './PNTSLoader.js';
 import { I3DMLoader } from './I3DMLoader.js';
 import { CMPTLoader } from './CMPTLoader.js';
+import { GLTFTileLoader } from './GLTFTileLoader.js';
 import { TilesGroup } from './TilesGroup.js';
 import {
 	Matrix4,
@@ -571,10 +572,20 @@ export class TilesRenderer extends TilesRendererBase {
 				break;
 
 			}
+			case 'glb':
+			case 'gltf':
+				const loader = new GLTFTileLoader( manager );
+				loader.workingPath = workingPath;
+				loader.fetchOptions = fetchOptions;
+				promise = loader
+					.parse( buffer )
+					.then( res => res.scene );
+
+				break;
 
 			default:
 				console.warn( `TilesRenderer: Content type "${ extension }" not supported.` );
-				promise = Promise.resolve( null );
+				promise = Promise.resolve(null);
 				break;
 
 		}
