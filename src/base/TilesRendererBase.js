@@ -261,7 +261,7 @@ export class TilesRendererBase {
 
 				const version = json.asset.version;
 				console.assert(
-					version === '1.0' || version === '0.0',
+					version === '1.0' || version === '0.0' || version === '1.1',
 					'asset.version is expected to be a string of "1.0" or "0.0"'
 				);
 
