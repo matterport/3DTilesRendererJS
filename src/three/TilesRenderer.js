@@ -532,6 +532,7 @@ export class TilesRenderer extends TilesRendererBase {
 		const loadIndex = tile._loadIndex;
 		let promise = null;
 
+		/** MP_TILES_PROTO: TODO - Add plugin loaders for */
 		switch ( extension ) {
 
 			case 'b3dm':
@@ -572,8 +573,9 @@ export class TilesRenderer extends TilesRendererBase {
 				break;
 
 			}
-			case 'glb':
-			case 'gltf':
+
+			/** MP_TILES_PROTO */
+			case 'glb': {
 				const loader = new GLTFTileLoader( manager );
 				loader.workingPath = workingPath;
 				loader.fetchOptions = fetchOptions;
@@ -582,6 +584,20 @@ export class TilesRenderer extends TilesRendererBase {
 					.then( res => res.scene );
 
 				break;
+
+			}
+			case 'gltf': {
+				const loader = new GLTFTileLoader( manager );
+				loader.workingPath = workingPath;
+				loader.fetchOptions = fetchOptions;
+				promise = loader
+					.parse( buffer )
+					.then( res => res.scene );
+
+				break;
+
+			}
+			/** MP_TILES_PROTO */
 
 			default:
 				console.warn( `TilesRenderer: Content type "${ extension }" not supported.` );
