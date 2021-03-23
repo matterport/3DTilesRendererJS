@@ -1,4 +1,4 @@
-import { Box3Helper, Group, MeshBasicMaterial, PointsMaterial } from 'three';
+import { Box3Helper, Group, MathUtils, MeshStandardMaterial, PointsMaterial } from 'three';
 import { TilesRenderer } from './TilesRenderer.js';
 import { SphereHelper } from './SphereHelper.js';
 
@@ -219,7 +219,8 @@ export class DebugTilesRenderer extends TilesRenderer {
 
 						} else {
 
-							c.material = new MeshBasicMaterial();
+							c.material = new MeshStandardMaterial();
+							c.material.flatShading = true;
 
 						}
 
@@ -257,7 +258,8 @@ export class DebugTilesRenderer extends TilesRenderer {
 
 							} else {
 
-								c.material.color.setRGB( val, val, val );
+								const v = MathUtils.mapLinear( val, 1, 0, 0.1, 1);
+								c.material.color.setRGB( v, v, v );
 
 							}
 							break;
@@ -265,7 +267,7 @@ export class DebugTilesRenderer extends TilesRenderer {
 						}
 						case GEOMETRIC_ERROR: {
 
-							const val = Math.min( tile.geometricError / maxError, 1 );
+							const val = MathUtils.mapLinear(Math.min( tile.geometricError / maxError, 1 ), 1, 0, 0.1, 1);
 							c.material.color.setRGB( val, val, val );
 							break;
 
