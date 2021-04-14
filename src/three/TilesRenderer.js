@@ -775,11 +775,12 @@ export class TilesRenderer extends TilesRendererBase {
 
 	calculateError( tile ) {
 
-		if ( tile.geometricError === 0.0 ) {
+		// MP: I still want to sort by distance even for the full quality tiles
+		// if ( tile.geometricError === 0.0 ) {
 
-			return 0.0;
+		// 	return 0.0;
 
-		}
+		// }
 
 		const cached = tile.cached;
 		const inFrustum = cached.inFrustum;
@@ -795,6 +796,10 @@ export class TilesRenderer extends TilesRendererBase {
 
 			let maxError = - Infinity;
 			let minDistance = Infinity;
+			
+			// a non zero minimum geometric error value allows tiles on the full res level to also sort by distance
+			const geometricError = Math.max(0.01, tile.geometricError);
+
 			for ( let i = 0, l = cameras.length; i < l; i ++ ) {
 
 				if ( ! inFrustum[ i ] ) {
@@ -814,14 +819,14 @@ export class TilesRenderer extends TilesRendererBase {
 				if ( camera.isOrthographicCamera ) {
 
 					const pixelSize = info.pixelSize;
-					error = tile.geometricError / ( pixelSize * invScale );
+					error = geometricError / ( pixelSize * invScale );
 
 				} else {
 
 					const distance = boundingBox.distanceToPoint( tempVector );
 					const scaledDistance = distance * invScale;
 					const sseDenominator = info.sseDenominator;
-					error = tile.geometricError / ( scaledDistance * sseDenominator );
+					error = geometricError / ( scaledDistance * sseDenominator );
 
 					minDistance = Math.min( minDistance, scaledDistance );
 
