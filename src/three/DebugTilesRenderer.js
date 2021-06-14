@@ -2,7 +2,7 @@ import { Box3Helper, Group, MathUtils, MeshStandardMaterial, PointsMaterial } fr
 import { TilesRenderer } from './TilesRenderer.js';
 import { SphereHelper } from './SphereHelper.js';
 
-const ORIGINAL_MATERIAL = Symbol( 'ORIGINAL_MATERIAL' );
+export const ORIGINAL_MATERIAL = Symbol( 'ORIGINAL_MATERIAL' );
 const HAS_RANDOM_COLOR = Symbol( 'HAS_RANDOM_COLOR' );
 
 function emptyRaycast() {}
