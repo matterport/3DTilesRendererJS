@@ -20,7 +20,7 @@ export class CustomTileLoader {
 	parse( buffer ) {
 
 		const manager = this.manager;
-		const handlerKey = this.handlerKey;
+		const handlerKey = this.extension;
 
 		return new Promise( ( resolve, reject ) => {
 
