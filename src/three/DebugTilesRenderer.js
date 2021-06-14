@@ -1,4 +1,5 @@
 import { Box3Helper, Group, MathUtils, MeshStandardMaterial, PointsMaterial } from 'three';
+import { getIndexedRandomColor } from './utilities.js';
 import { TilesRenderer } from './TilesRenderer.js';
 import { SphereHelper } from './SphereHelper.js';
 
@@ -260,7 +261,7 @@ export class DebugTilesRenderer extends TilesRenderer {
 
 							} else {
 
-								const v = MathUtils.mapLinear( val, 1, 0, 0.1, 1);
+								const v = MathUtils.mapLinear( val, 1, 0, 0.1, 1 );
 								c.material.color.setRGB( v, v, v );
 
 							}
@@ -269,7 +270,7 @@ export class DebugTilesRenderer extends TilesRenderer {
 						}
 						case GEOMETRIC_ERROR: {
 
-							const val = MathUtils.mapLinear(Math.min( tile.geometricError / maxError, 1 ), 1, 0, 0.1, 1);
+							const val = MathUtils.mapLinear( Math.min( tile.geometricError / maxError, 1 ), 1, 0, 0.1, 1 );
 							c.material.color.setRGB( val, val, val );
 							break;
 
@@ -367,7 +368,7 @@ export class DebugTilesRenderer extends TilesRenderer {
 					boxHelperGroup.matrix.copy( cachedBoxMat );
 					boxHelperGroup.matrixAutoUpdate = false;
 
-					const boxHelper = new Box3Helper( cachedBox );
+					const boxHelper = new Box3Helper( cachedBox, getIndexedRandomColor( tile.__depth ) );
 					boxHelper.raycast = emptyRaycast;
 					boxHelperGroup.add( boxHelper );
 
