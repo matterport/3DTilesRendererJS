@@ -1,18 +1,18 @@
-export class LRUCache {
+export class LRUCache<T> {
 
-	maxSize : Number;
-	minSize : Number;
-	unloadPercent : Number;
-	unloadPriorityCallback : ( item : any ) => Number;
+	maxSize : number;
+	minSize : number;
+	unloadPercent : number;
+	unloadPriorityCallback : ( item : T ) => number;
 
-	isFull() : Boolean;
-	add( item : any, callback : ( item : any ) => Number ) : Boolean;
-	remove( item : any ) : Boolean;
+	isFull() : boolean;
+	add( item : T, callback : ( item : T ) => void ) : void;
+	remove( item : T ) : boolean;
 
-	markUsed( item : any ) : void;
+	markUsed( item : T ) : void;
 	markAllUnused() : void;
 
 	unloadUnusedContent() : void;
-	scheduleUnload( markAllUnused : Boolean );
+	scheduleUnload( markAllUnused? : boolean );
 
 }

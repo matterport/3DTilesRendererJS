@@ -1,3 +1,5 @@
+// @ts-check
+
 import path from 'path';
 import { urlJoin } from '../utilities/urlJoin.js';
 import { LRUCache } from '../utilities/LRUCache.js';
@@ -8,8 +10,8 @@ import { UNLOADED, LOADING, PARSING, LOADED, FAILED } from './constants.js';
 /**
  * Function for provided to sort all tiles for prioritizing loading/unloading.
  *
- * @param {Tile} a
- * @param {Tile} b
+ * @param {import('./Tile').Tile} a
+ * @param {import('./Tile').Tile} b
  * @returns number
  */
 const priorityCallback = ( a, b ) => {
@@ -36,7 +38,7 @@ const priorityCallback = ( a, b ) => {
 
 /**
  * Function for sorting the evicted LRU items. We should evict the shallowest depth first.
- * @param {Tile} tile
+ * @param {import('./Tile').Tile} tile
  * @returns number
  */
 const lruPriorityCallback = ( tile ) => {
@@ -48,8 +50,19 @@ const lruPriorityCallback = ( tile ) => {
 
 };
 
+/**
+ * @type {import('./TilesRendererBase').TilesRendererBase}
+ * Base class for common rendering engine agnostic portions of the TilesRenderer
+ */
 export class TilesRendererBase {
 
+	/**
+	 * The tileset at rootUrl or null if it is not loaded yet.
+	 *
+	 * @readonly
+	 * @memberof TilesRendererBase
+	 * @returns {null | import('./Tileset').Tileset} rootTileSet
+	 */
 	get rootTileSet() {
 
 		const tileSet = this.tileSets[ this.rootURL ];
@@ -65,6 +78,13 @@ export class TilesRendererBase {
 
 	}
 
+	/**
+	 * The root tile null if it is not loaded yet.
+	 *
+	 * @readonly
+	 * @memberof TilesRendererBase
+	 * @returns {null | import('./Tile').Tile} rootTileSet
+	 */
 	get root() {
 
 		const tileSet = this.rootTileSet;
@@ -172,6 +192,13 @@ export class TilesRendererBase {
 
 	}
 
+	/**
+	 * Base preprocess step for each tile
+	 *
+	 * @param {import('./Tile').TileInternal} tile
+	 * @param {import('./Tile').TileInternal} parentTile
+	 * @param {string} tileSetDir
+	 */
 	preprocessNode( tile, parentTile, tileSetDir ) {
 
 		if ( tile.content ) {
@@ -284,6 +311,13 @@ export class TilesRendererBase {
 	}
 
 	// Private Functions
+	/**
+	 *
+	 * @param {string} url
+	 * @param {RequestInit} fetchOptions
+	 * @param {null | import('./Tile').Tile} parent
+	 * @returns {Promise<import('./Tileset').Tileset>} Tileset promise
+	 */
 	fetchTileSet( url, fetchOptions, parent = null ) {
 
 		return fetch( url, fetchOptions )
@@ -360,6 +394,11 @@ export class TilesRendererBase {
 
 	}
 
+	/**
+	 * Base loading for each tile
+	 *
+	 * @param {import('./Tile').TileInternal} tile
+	 */
 	requestTileContents( tile ) {
 
 		// If the tile is already being loaded then don't

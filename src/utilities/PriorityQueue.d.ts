@@ -1,11 +1,11 @@
-export class PriorityQueue {
+export class PriorityQueue<T> {
 
-	maxJobs : Number;
-	autoUpdate : Boolean;
-	priorityCallback : ( itemA : any , itemB : any ) => Number;
+	maxJobs : number;
+	autoUpdate : boolean;
+	priorityCallback : ( itemA : T , itemB : T ) => number;
 
 	sort() : void;
-	add( item : any, callback : ( item : any ) => any ) : Promise< any >;
+	add( item : T, callback : ( item : T ) => any ) : Promise< Response >;
 	remove( item : any ) : void;
 
 	tryRunJobs() : void;
