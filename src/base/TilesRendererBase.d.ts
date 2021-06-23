@@ -1,3 +1,4 @@
+import { TileInternal } from '../base/Tile';
 import { LRUCache } from '../utilities/LRUCache';
 import { PriorityQueue } from '../utilities/PriorityQueue';
 
@@ -6,72 +7,27 @@ export class TilesRendererBase {
 	readonly rootTileset : Object | null;
 	readonly root : Object | null;
 
-	errorTarget : Number;
-	errorThreshold : Number;
-	loadSiblings : Boolean;
-	displayActiveTiles : Boolean;
-	maxDepth : Number;
-	stopAtEmptyTiles : Boolean;
+	errorTarget : number;
+	errorThreshold : number;
+	loadSiblings : boolean;
+	displayActiveTiles : boolean;
+	maxDepth : number;
+	stopAtEmptyTiles : boolean;
 
 	fetchOptions : Object;
 	/** function to preprocess the url for each individual tile */
 	preprocessURL : ((uri: string | URL) => string) | null;
 
-	lruCache : LRUCache;
-	parseQueue : PriorityQueue;
-	downloadQueue : PriorityQueue;
+	lruCache : LRUCache<TileInternal>;
+	parseQueue : PriorityQueue<TileInternal>;
+	downloadQueue : PriorityQueue<TileInternal>;
 
 	constructor( url : String );
 	update() : void;
 	traverse(
-		beforeCb : ( ( tile : Object, parent : Object, depth : Number ) => Boolean ) | null,
-		afterCb : ( ( tile : Object, parent : Object, depth : Number ) => Boolean ) | null
+		beforeCb : ( ( tile : TileInternal, parent : TileInternal, depth : number ) => boolean ) | null,
+		afterCb : ( ( tile : TileInternal, parent : TileInternal, depth : number ) => boolean ) | null
 	) : void;
 	dispose() : void;
-
-}
-
-/** Documented 3d-tile state managed by the TilesRenderer* / traverseFunctions! */
-export interface Tile {
-
-	/**
-	 * Hierarchy Depth from the TileGroup
-	 */
-	__depth : Number;
-	/**
-	 * The screen space error for this tile
-	 */
-	__error : Number;
-	/**
-	 * How far is this tiles bounds from the nearest active Camera.
-	 * Expected to be filled in during calculateError implementations.
-	 */
-	__distanceFromCamera : Number;
-	/**
-	 * This tile is currently active if:
-	 *  1: Tile content is loaded and ready to be made visible if needed
-	 */
-	__active : Boolean;
-	/**
-	 * This tile is currently visible if:
-	 *  1: Tile content is loaded
-	 *  2: Tile is within a camera frustum
-	 *  3: Tile meets the SSE requirements
-	 */
-	__visible : Boolean;
-	/**
-	 * Whether or not the tile was visited during the last update run.
-	 */
-	__used : Boolean;
-
-	/**
-	 * Whether or not the tile was within the frustum on the last update run.
-	 */
-	__inFrustum : Boolean;
-
-	/**
-	 * TODO: Document this if it is useful enough to be the default property in the LRU sorting.
-	 */
-	__depthFromRenderedParent : Number;
 
 }

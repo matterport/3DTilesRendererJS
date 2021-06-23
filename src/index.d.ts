@@ -16,6 +16,8 @@ import { PNTSLoader } from './three/PNTSLoader';
 import { CMPTLoader } from './three/CMPTLoader';
 
 import { TilesRendererBase } from './base/TilesRendererBase';
+import { Tile, TileInternal } from './base/Tile';
+import { Tileset } from './base/Tileset';
 import { B3DMLoaderBase } from './base/B3DMLoaderBase';
 import { I3DMLoaderBase } from './base/I3DMLoaderBase';
 import { PNTSLoaderBase } from './base/PNTSLoaderBase';
@@ -29,6 +31,8 @@ export {
 	TilesRenderer,
 	B3DMLoader,
 
+	Tile,
+	Tileset,
 	TilesRendererBase,
 	B3DMLoaderBase,
 
