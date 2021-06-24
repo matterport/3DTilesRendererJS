@@ -1,6 +1,7 @@
 
 /**
  * 3d-tiles Tile object per spec:
+ * (incomplete, expanding as features become supported.)
  * - https://github.com/CesiumGS/3d-tiles/blob/master/specification/schema/tile.schema.json
  */
 export interface TileBase {
@@ -14,6 +15,7 @@ export interface TileBase {
     }
     geometricError : number,
     refine? : 'REPLACE' | 'ADD';
+	extras? : Record<string, any>;
 }
 
 /** Documented 3d-tile state managed by the TilesRenderer* / traverseFunctions! */
