@@ -249,9 +249,13 @@ export class DebugTilesRenderer extends TilesRenderer {
 
 						case DEPTH: {
 
+							// map error [0..1] from green to red [0.35..1]
+							//  with small solid buffer at edges of range
 							const val = tile.__depth / maxDepth;
-							/** map higher depth values to red, lower to green, lerping by hue */
-							c.material.color.setHSL( MathUtils.mapLinear( val, 0, 1, 0.9, 0.1 ), 1, 0.5 );
+							c.material.color.setHSL(
+								MathUtils.mapLinear( val, 0.05, 0.95, 0.35, 0.0 ),
+								1.0,
+								0.35 );
 							break;
 
 						}
@@ -272,7 +276,7 @@ export class DebugTilesRenderer extends TilesRenderer {
 							} else {
 
 								/** map higher error values to red, lower to green, lerping by hue */
-								c.material.color.setHSL( MathUtils.mapLinear( val, 0, 1, 0.43, 0 ), 1, 0.5 );
+								c.material.color.setHSL( MathUtils.mapLinear( val, 0.05, 0.95, 0.43, 0 ), 1, 0.5 );
 
 							}
 							break;
