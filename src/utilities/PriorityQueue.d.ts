@@ -5,7 +5,7 @@ export class PriorityQueue<T> {
 	priorityCallback : ( itemA : T , itemB : T ) => number;
 
 	sort() : void;
-	add( item : T, callback : ( item : T ) => any ) : Promise< Response >;
+	add( item : T, callback : ( item : T ) => any ) : Promise< any >;
 	remove( item : any ) : void;
 
 	tryRunJobs() : void;
