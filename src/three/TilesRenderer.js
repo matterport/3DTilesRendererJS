@@ -118,6 +118,10 @@ export class TilesRenderer extends TilesRendererBase {
 		this.registerTileContentParser( 'i3dm', I3DMLoader );
 		this.registerTileContentParser( 'cmpt', CMPTLoader );
 
+		/** MP_TILES_PROTO: TODO, move external if we have a pattern for registering extensions -> parser extension */
+		this.registerTileContentParser( 'gltf', CustomTileParser );
+		this.registerTileContentParser( 'glb', CustomTileParser );
+
 	}
 
 	/* Public API */
