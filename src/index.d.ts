@@ -32,6 +32,8 @@ export {
 	B3DMLoader,
 
 	Tile,
+	// exposed to allow extension for use in priority functions
+	TileInternal,
 	Tileset,
 	TilesRendererBase,
 	B3DMLoaderBase,
