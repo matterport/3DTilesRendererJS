@@ -592,6 +592,14 @@ getDebugColor : ( val : Number, target : Color ) => void
 
 The function used to map a [0, 1] value to a color for debug visualizations. By default the color is mapped from black to white.
 
+### .setOriginalMaterial
+
+```js
+setOriginalMaterial: ( child: Object3D, material: Material ) => void
+```
+
+Update the originalMaterial used to reset the visualization when colorMode is set to NONE. Helpful if you swap the material on tiles after they have been loaded.
+
 ## PriorityQueue
 
 Piority-sorted queue to prioritize file downloads and parsing.

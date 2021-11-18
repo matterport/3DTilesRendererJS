@@ -1,5 +1,5 @@
 import { TilesRenderer } from './TilesRenderer';
-import { Color } from 'three';
+import type { Color, Material, Object3D } from 'three';
 
 export enum ColorMode {}
 export const NONE : ColorMode;
@@ -23,5 +23,7 @@ export class DebugTilesRenderer extends TilesRenderer {
 	maxDebugError : Number;
 
 	getDebugColor : ( val: Number, target: Color ) => void;
+
+	setOriginalMaterial : ( child: Object3D, material: Material ) => void
 
 }

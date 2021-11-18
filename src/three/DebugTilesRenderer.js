@@ -51,6 +51,12 @@ export class DebugTilesRenderer extends TilesRenderer {
 
 		};
 
+		this.setOriginalMaterial = ( child, material ) => {
+
+			child[ ORIGINAL_MATERIAL ] = material;
+
+		};
+
 		this.extremeDebugDepth = - 1;
 		this.extremeDebugError = - 1;
 
