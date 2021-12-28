@@ -1,8 +1,8 @@
 import { LOADED, FAILED } from './constants.js';
 
-function isDownloadFinished( value ) {
+export function isTileDownloadFinished( tile ) {
 
-	return value === LOADED || value === FAILED;
+	return tile.__loadingState === LOADED || tile.__loadingState === FAILED;
 
 }
 
@@ -59,7 +59,7 @@ function recursivelyLoadTiles( tile, depthFromRenderedParent, renderer ) {
 	const doTraverse =
 		tile.__contentEmpty && (
 			! tile.__externalTileSet ||
-			isDownloadFinished( tile.__loadingState )
+			isTileDownloadFinished( tile )
 		);
 	if ( doTraverse ) {
 
@@ -238,7 +238,7 @@ export function markUsedSetLeaves( tile, renderer ) {
 
 				const childLoaded =
 					c.__allChildrenLoaded ||
-					( ! c.__contentEmpty && isDownloadFinished( c.__loadingState ) ) ||
+					( ! c.__contentEmpty && isTileDownloadFinished( c ) ) ||
 					( c.__externalTileSet && c.__loadingState === FAILED );
 				allChildrenLoaded = allChildrenLoaded && childLoaded;
 
@@ -300,7 +300,7 @@ export function skipTraversal( tile, renderer ) {
 	const includeTile = meetsSSE || tile.refine === 'ADD';
 	const hasModel = ! tile.__contentEmpty;
 	const hasContent = hasModel || tile.__externalTileSet;
-	const loadedContent = isDownloadFinished( tile.__loadingState ) && hasContent;
+	const loadedContent = isTileDownloadFinished( tile ) && hasContent;
 	const childrenWereVisible = tile.__childrenWereVisible;
 	const children = tile.children;
 	let allChildrenHaveContent = tile.__allChildrenLoaded;

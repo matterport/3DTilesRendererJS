@@ -24,6 +24,7 @@ import { B3DMLoaderBase } from './base/B3DMLoaderBase.js';
 import { I3DMLoaderBase } from './base/I3DMLoaderBase.js';
 import { PNTSLoaderBase } from './base/PNTSLoaderBase.js';
 import { CMPTLoaderBase } from './base/CMPTLoaderBase.js';
+import { isTileDownloadFinished } from './base/traverseFunctions.js';
 
 import { LRUCache } from './utilities/LRUCache.js';
 import { PriorityQueue } from './utilities/PriorityQueue.js';
@@ -46,6 +47,8 @@ export {
 
 	LRUCache,
 	PriorityQueue,
+
+	isTileDownloadFinished,
 
 	NONE,
 	SCREEN_ERROR,
