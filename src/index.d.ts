@@ -34,3 +34,5 @@ export * as ThreeTileUtils from './three/ThreeTileUtils';
 
 export { LRUCache } from './utilities/LRUCache';
 export { PriorityQueue } from './utilities/PriorityQueue';
+
+export { ExtensionBase, ExtensionType } from './extensions';

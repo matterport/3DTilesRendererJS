@@ -474,77 +474,84 @@ export class TilesRenderer extends TilesRendererBase {
 		const fetchOptions = this.fetchOptions;
 
 		const manager = this.manager;
+		const extensions = this.extensions;
+
 		const loadIndex = tile._loadIndex;
+
 		let promise = null;
+		promise = extensions.useFunction( 'parse', tile, buffer, extension );
 
-		switch ( extension ) {
+		if ( ! promise ) {
 
-			case 'b3dm': {
+			switch ( extension ) {
 
-				const loader = new B3DMLoader( manager );
-				loader.workingPath = workingPath;
-				loader.fetchOptions = fetchOptions;
-				promise = loader
-					.parse( buffer )
-					.then( res => res.scene );
-				break;
+				case 'b3dm': {
+
+					const loader = new B3DMLoader( manager );
+					loader.workingPath = workingPath;
+					loader.fetchOptions = fetchOptions;
+					promise = loader
+						.parse( buffer )
+						.then( res => res.scene );
+					break;
+
+				}
+
+				case 'pnts': {
+
+					const loader = new PNTSLoader( manager );
+					loader.workingPath = workingPath;
+					loader.fetchOptions = fetchOptions;
+					promise = loader
+						.parse( buffer )
+						.then( res => res.scene );
+					break;
+
+				}
+
+				case 'i3dm': {
+
+					const loader = new I3DMLoader( manager );
+					loader.workingPath = workingPath;
+					loader.fetchOptions = fetchOptions;
+					promise = loader
+						.parse( buffer )
+						.then( res => res.scene );
+					break;
+
+				}
+
+				case 'cmpt': {
+
+					const loader = new CMPTLoader( manager );
+					loader.workingPath = workingPath;
+					loader.fetchOptions = fetchOptions;
+					promise = loader
+						.parse( buffer )
+						.then( res => res.scene	);
+					break;
+
+				}
+
+				// 3DTILES_content_gltf
+				case 'gltf':
+				case 'glb':
+					const loader = new GLTFExtensionLoader( manager );
+					loader.workingPath = workingPath;
+					loader.fetchOptions = fetchOptions;
+					promise = loader
+						.parse( buffer )
+						.then( res => res.scene	);
+					break;
+
+				default:
+					console.warn( `TilesRenderer: Content type "${ extension }" not supported.` );
+					promise = Promise.resolve( null );
+					break;
 
 			}
-
-			case 'pnts': {
-
-				const loader = new PNTSLoader( manager );
-				loader.workingPath = workingPath;
-				loader.fetchOptions = fetchOptions;
-				promise = loader
-					.parse( buffer )
-					.then( res => res.scene );
-				break;
-
-			}
-
-			case 'i3dm': {
-
-				const loader = new I3DMLoader( manager );
-				loader.workingPath = workingPath;
-				loader.fetchOptions = fetchOptions;
-				promise = loader
-					.parse( buffer )
-					.then( res => res.scene );
-				break;
-
-			}
-
-			case 'cmpt': {
-
-				const loader = new CMPTLoader( manager );
-				loader.workingPath = workingPath;
-				loader.fetchOptions = fetchOptions;
-				promise = loader
-					.parse( buffer )
-					.then( res => res.scene	);
-				break;
-
-			}
-
-			// 3DTILES_content_gltf
-			case 'gltf':
-			case 'glb':
-				const loader = new GLTFExtensionLoader( manager );
-				loader.workingPath = workingPath;
-				loader.fetchOptions = fetchOptions;
-				promise = loader
-					.parse( buffer )
-					.then( res => res.scene	);
-				break;
-
-			default:
-				console.warn( `TilesRenderer: Content type "${ extension }" not supported.` );
-				promise = Promise.resolve( null );
-				break;
 
 		}
-
 		return promise.then( scene => {
 
 			if ( tile._loadIndex !== loadIndex ) {

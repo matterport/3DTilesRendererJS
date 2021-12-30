@@ -5,6 +5,7 @@ import { LRUCache } from '../utilities/LRUCache.js';
 import { PriorityQueue } from '../utilities/PriorityQueue.js';
 import { determineFrustumSet, toggleTiles, skipTraversal, markUsedSetLeaves, traverseSet } from './traverseFunctions.js';
 import { UNLOADED, LOADING, PARSING, LOADED, FAILED } from './constants.js';
+import { ExtensionSystem } from '../extensions/index.js';
 
 /**
  * Function for provided to sort all tiles for prioritizing loading/unloading.
@@ -97,6 +98,9 @@ export class TilesRendererBase {
 		const parseQueue = new PriorityQueue();
 		parseQueue.maxJobs = 1;
 		parseQueue.priorityCallback = priorityCallback;
+
+		const extensions = new ExtensionSystem( this );
+		this.extensions = extensions;
 
 		this.lruCache = lruCache;
 		this.downloadQueue = downloadQueue;
@@ -334,6 +338,7 @@ export class TilesRendererBase {
 	loadRootTileSet( url ) {
 
 		const tileSets = this.tileSets;
+		const extensions = this.extensions;
 		if ( ! ( url in tileSets ) ) {
 
 			const pr = this
@@ -341,6 +346,9 @@ export class TilesRendererBase {
 				.then( json => {
 
 					tileSets[ url ] = json;
+					extensions.setExtensionsUsed( json.extensionsUsed || [] );
+					extensions.setExtensionsRequired( json.extensionsRequired || [] );
+					extensions.checkSupport();
 
 				} );
 
@@ -381,6 +389,8 @@ export class TilesRendererBase {
 		const lruCache = this.lruCache;
 		const downloadQueue = this.downloadQueue;
 		const parseQueue = this.parseQueue;
+		const extensions = this.extensions;
+
 		const isExternalTileSet = tile.__externalTileSet;
 		lruCache.add( tile, t => {
 
@@ -512,7 +522,16 @@ export class TilesRendererBase {
 				}
 
 				const uri = this.preprocessURL ? this.preprocessURL( downloadTile.content.uri ) : downloadTile.content.uri;
-				return fetch( uri, Object.assign( { signal }, this.fetchOptions ) );
+				const fetchOptions = Object.assign( { signal }, this.fetchOptions );
+
+				const response = extensions.useFunction( 'fetch', downloadTile, uri, fetchOptions );
+				if ( response ) {
+
+					return response;
+
+				}
+
+				return fetch( uri, fetchOptions );
 
 			} )
 				.then( res => {

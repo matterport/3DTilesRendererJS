@@ -2,6 +2,7 @@ import { Box3, Camera, Vector2, Matrix4, WebGLRenderer, Object3D, LoadingManager
 import { Tile } from '../base/Tile';
 import { Tileset } from '../base/Tileset';
 import { TilesRendererBase } from '../base/TilesRendererBase';
+import { ExtensionSystem } from '../extensions';
 import { TilesGroup } from './TilesGroup';
 
 export class TilesRenderer extends TilesRendererBase {
@@ -12,6 +13,7 @@ export class TilesRenderer extends TilesRendererBase {
 	manager : LoadingManager;
 
 	group : TilesGroup;
+	extensions : ExtensionSystem;
 
 	getBoundsTransform( target: Matrix4 ) : Boolean;
 

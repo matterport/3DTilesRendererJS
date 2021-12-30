@@ -29,6 +29,7 @@ import { isTileDownloadFinished } from './base/traverseFunctions.js';
 
 import { LRUCache } from './utilities/LRUCache.js';
 import { PriorityQueue } from './utilities/PriorityQueue.js';
+import { ExtensionBase, ExtensionType } from './extensions/index.js';
 
 export {
 	DebugTilesRenderer,
@@ -62,4 +63,7 @@ export {
 	RANDOM_COLOR,
 	RANDOM_NODE_COLOR,
 	CUSTOM_COLOR,
+
+	ExtensionBase,
+	ExtensionType,
 };
