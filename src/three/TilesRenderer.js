@@ -479,8 +479,8 @@ export class TilesRenderer extends TilesRendererBase {
 
 		if ( tile.content.extensions ) {
 
-			// TODO: un-hack
-			const ext = tile.content.extensions[ 'MTTR_extension_expand_lod' ];
+			// TODO: un-hack, and move to pre-parseTile to avoid rereading fetch buffer a ton of times
+			const ext = tile.content && tile.content.extensions && tile.content.extensions[ 'MTTR_extension_expand_lod' ];
 			if ( ext && ext.scene ) {
 
 				promise = Promise.resolve( ext.scene );

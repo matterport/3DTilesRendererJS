@@ -511,6 +511,14 @@ export class TilesRendererBase {
 
 				}
 
+				// TODO: un-hack, and move to pre-parseTile to avoid rereading fetch buffer a ton of times
+				const ext = tile.content && tile.content.extensions && tile.content.extensions[ 'MTTR_extension_expand_lod' ];
+				if ( ext && ext.scene ) {
+
+					return Promise.resolve( null );
+
+				}
+
 				const uri = this.preprocessURL ? this.preprocessURL( downloadTile.content.uri ) : downloadTile.content.uri;
 				return fetch( uri, Object.assign( { signal }, this.fetchOptions ) );
 
@@ -520,6 +528,13 @@ export class TilesRendererBase {
 					if ( tile.__loadIndex !== loadIndex ) {
 
 						return;
+
+					}
+
+					// TODO: un-hack, avoiding rereading fetch buffer a ton of times for pre-loaded stuff
+					if ( res === null ) {
+
+						return null;
 
 					}
 
