@@ -17,6 +17,7 @@ import { PNTSLoader } from './three/PNTSLoader.js';
 import { I3DMLoader } from './three/I3DMLoader.js';
 import { CMPTLoader } from './three/CMPTLoader.js';
 import { GLTFExtensionLoader } from './three/GLTFExtensionLoader.js';
+import * as ThreeTileUtils from './three/ThreeTileUtils.js';
 
 import { TilesRendererBase } from './base/TilesRendererBase.js';
 import { LoaderBase } from './base/LoaderBase.js';
@@ -49,6 +50,7 @@ export {
 	PriorityQueue,
 
 	isTileDownloadFinished,
+	ThreeTileUtils,
 
 	NONE,
 	SCREEN_ERROR,
