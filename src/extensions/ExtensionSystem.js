@@ -136,10 +136,16 @@ export class ExtensionSystem {
 			extension.useTileset( tileset );
 			const data = getExtensionSpecificData( extension.name, getExtensionTypeData( extension.extensionType, obj ) );
 			const func = getFunction( extension, funcName );
-			if ( func ) {
 
-				// data can be null.. ex: 3DTILES_content_gltf has top level data
-				// but not per-tile data
+			// TODO(extensions): Is there a better way to narrow execution scope?
+			// Maybe?: TILE/CONTENT/ASSET type require data vs TILESET type doesn't?
+			// ex: 3DTILES_content_gltf has top level data but not per-tile data
+			// as do some of the metadata extensions which might apply styling from top level ext data
+			// to the tile?
+
+			// or just delegate getting the data to the extension implementation?
+			if ( func && data ) {
+
 				const result = func( data, ...args );
 				if ( result ) return result;
 
