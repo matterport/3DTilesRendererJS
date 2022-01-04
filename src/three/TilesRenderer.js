@@ -107,11 +107,6 @@ export class TilesRenderer extends TilesRendererBase {
 
 		};
 
-		// TODO(extensions): I'd rather only add this if the tileset supports gltf AND gltf isn't already registered
-		// so this should likely go along with fetchRootTileset
-		// but that's in TilesRendererBase, and GLTF is threejs specific
-		this.extensions.register( () => new GLTFExtension( manager ) );
-
 	}
 
 	/* Public API */
@@ -310,6 +305,9 @@ export class TilesRenderer extends TilesRendererBase {
 	/* Overriden */
 	fetchTileSet( url, ...rest ) {
 
+		const extensions = this.extensions;
+		const manager = this.manager;
+
 		const pr = super.fetchTileSet( url, ...rest );
 		pr.then( json => {
 
@@ -323,6 +321,15 @@ export class TilesRenderer extends TilesRendererBase {
 					this.onLoadTileSet( json, url );
 
 				} );
+
+			}
+
+			// check for any newly seen extensions in the loaded tileset
+			extensions.checkSupport( json, true );
+			// add gltf support if the tileset requires gltf AND gltf isn't already registered?
+			if ( extensions.requires( '3DTILES_content_gltf' ) ) {
+
+				extensions.register( () => new GLTFExtension( manager ) );
 
 			}
 

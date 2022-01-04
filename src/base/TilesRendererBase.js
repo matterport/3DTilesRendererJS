@@ -346,9 +346,7 @@ export class TilesRendererBase {
 				.then( json => {
 
 					tileSets[ url ] = json;
-					extensions.setExtensionsUsed( json.extensionsUsed || [] );
-					extensions.setExtensionsRequired( json.extensionsRequired || [] );
-					extensions.checkSupport();
+					extensions.useTileset( json );
 
 				} );
 

@@ -2,14 +2,21 @@ import { isValidExtensionType } from './utilities.js';
 
 export class ExtensionBase {
 
-	constructor( extType, name ) {
+	constructor( extType, extName ) {
 
 		// the key used to look up into the extension objects
-		this.name = name;
+		this.name = extName;
+
+		this.extensionType = extType;
 
 		// enforce a 3d-tiles spec supported extensions blob, which we know how to extract
-		this.extensionType = extType;
 		if ( ! isValidExtensionType( extType ) ) throw Error( `Unsupported Extension Type: ${extType}` );
+
+		this.data = {};
+
+	}
+
+	useTileset( tileset ) {
 
 		// if the extension is used after a root tileset has been loaded
 		// this should have any root level data associated with the extension.name
@@ -17,14 +24,10 @@ export class ExtensionBase {
 		// referenced in the tileset.
 		// - "3DTILES_content_gltf": { "extensionsUsed": ["EXT_mesh_gpu_instancing"], "extensionsRequired": ["EXT_mesh_gpu_instancing"] }
 		// see extension specs @ https://github.com/CesiumGS/3d-tiles/tree/main/extensions for what you might find in the .data object.
-		this.data = {};
-
-	}
-
-	setTileset( tileset ) {
 
 		// initialize the base data from the top level for this extension if available
 		this.data = tileset && tileset.extensions && tileset.extensions[ this.name ] || {};
+		return this;
 
 	}
 

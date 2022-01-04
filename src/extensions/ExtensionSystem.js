@@ -1,16 +1,10 @@
-import { ExtensionBase, ExtensionType } from './index.js';
+import { ExtensionBase } from './ExtensionBase.js';
+import { ExtensionType } from './ExtensionType.js';
 
 /**
- * Map of functions which extract the data required for each type of extension
- * - TBD: may need info from multiple places?
+ * This should only exist as long as the GLTFExtensionLoader stays built in to the parseTile fn.
+ * If this extension shifts to be separable via extension system then this initial 'support' should be removed.
  */
-const ExtractTypeData = Object.freeze( {
-	[ ExtensionType.ASSET ]: ( tileset ) => tileset && tileset[ ExtensionType.ASSET ] && tileset[ ExtensionType.ASSET ].extensions || null,
-	[ ExtensionType.CONTENT ]: ( tileOrTileset ) => tileOrTileset && tileOrTileset[ ExtensionType.CONTENT ] && tileOrTileset[ ExtensionType.CONTENT ].extensions || null,
-	[ ExtensionType.TILE ]: ( tile ) => tile && tile.extensions || null,
-	[ ExtensionType.TILESET ]: ( tileset ) => tileset && tileset.extensions || null,
-} );
-
 const DEFAULT_SUPPORTED_EXTENSIONS = [ '3DTILES_content_gltf' ];
 
 /** Adjust in index.d.ts:FunctionName also */
@@ -23,59 +17,97 @@ const SUPPORTED_FUNCTIONS = [ 'parse', 'fetch' ];
  */
 export class ExtensionSystem {
 
-	constructor( tilesRenderer ) {
+	constructor( ) {
 
-		this.tilesRenderer = tilesRenderer;
-		// Map<ExtensionType, ExtensionBase[]>
-		this.extensions = new Map();
-		// Map<FuncName, ExtensionBase[]>
-		this.functions = new Map();
+		/** Map<FuncName, Set<()=>ExtensionBase> - track extension factory funcs per function type */
+		this.extensionsByFunc = new Map();
+		/** Map<ExtensionName, Set<()=>ExtensionBase> - track extension factory funcs per function registered ExtensionName */
+		this.extensionsByName = new Map();
 
+		/** Set<string> - system support */
 		this.extensionsRegistered = new Set( DEFAULT_SUPPORTED_EXTENSIONS.slice() );
+
+		/** Tileset|null - most recent useTileset, tileset used for the tileset-wise data available within extensions */
+		this.tileset = null;
+		/** Set<string> - ExtensionNames optionally used by the tileset */
 		this.extensionsUsed = new Set();
+		/** Set<string> - ExtensionNames required to load the tileset */
 		this.extensionsRequired = new Set();
 
 	}
 
-	// At tileset parse, flag any extensions that are used
-	setExtensionsUsed( used ) {
+	dispose() {
 
-		this.extensionsUsed.add( ...used );
+		this.extensionsByName.forEach( extensionSet => {
+
+			extensionSet.forEach( cb => {
+
+				this._unregister( cb(), cb );
+
+			} );
+
+		} );
+		// TODO(extensions): uncomment after automated tests exist, these should be cleared by the _unregister.
+		// this.extensionsByName.clear();
+		// this.extensionsByFunc.clear();
+		// this.extensionsRegistered.clear();
+
+		this.tileset = null;
+		this.extensionsUsed.clear();
+		this.extensionsRequired.clear();
 
 	}
 
-	setExtensionsRequired( required ) {
+	/** check specific extension registered */
+	has( extensionName ) {
 
-		this.extensionsRequired.add( ...required );
+		return this.extensionsRegistered.has( extensionName );
 
 	}
 
-	// notify of unsupported extensions
-	checkSupport( extensionName = undefined ) {
+	/** check specific extension needed AND not registered */
+	requires( extensionName ) {
 
-		if ( extensionName ) {
+		const extensionsRequired = this.extensionsRequired;
+		const extensionsRegistered = this.extensionsRegistered;
 
-			return this.extensionsRegistered.has( extensionName );
+		const required = extensionsRequired.has( extensionName );
+		const unregistered = ! extensionsRegistered.has( extensionName );
+		return required && unregistered;
+
+	}
+
+	/** Set the tileset used for access to the top level extensions objects */
+	useTileset( tileset ) {
+
+		this.tileset = tileset;
+		this.checkSupport( tileset, false );
+		return this;
+
+	}
+
+	/** notify of unsupported extensions */
+	checkSupport( tileset, log = true ) {
+
+		const extensionsUsed = this.extensionsUsed;
+		const extensionsRequired = this.extensionsRequired;
+		const extensionsRegistered = this.extensionsRegistered;
+
+		const used = tileset && tileset.extensionsUsed || [];
+		const required = tileset && tileset.extensionsRequired || [];
+		extensionsUsed.add( ...used );
+		extensionsRequired.add( ...required );
+
+		if ( ! log ) return;
+
+		for ( const ext of extensionsUsed.values() ) {
+
+			extensionsRegistered.has( ext ) ? '' : console.log( `Optional extension ${ext} was not registered` );
 
 		}
+		for ( const ext of extensionsRequired.values() ) {
 
-		for ( const ext of this.extensionsUsed.values() ) {
-
-			if ( this.extensionsRegistered.has( ext ) ) {
-
-				console.log( `Optional extension ${ext} was not registered` );
-
-			}
-
-		}
-
-		for ( const ext of this.extensionsRequired.values() ) {
-
-			if ( this.extensionsRegistered.has( ext ) ) {
-
-				console.error( `Required extension ${ext} was not registered` );
-
-			}
+			extensionsRegistered.has( ext ) ? '' : console.warn( `Required extension ${ext} was not registered` );
 
 		}
 
@@ -84,21 +116,24 @@ export class ExtensionSystem {
 	/**
 	 * Iterate through any extensions registered for this type/function,
 	 * and return first Truthy result
+	 *
+	 * TODO(extensions): Likely need a way to support a way to default behavior + use all matching extensions?
 	 */
 	useFunction( funcName, obj, ...args ) {
 
-		const extensions = this.functions.get( funcName );
+		const tileset = this.tileset;
+		const extensions = this.extensionsByFunc.get( funcName );
 		if ( ! extensions || extensions.length === 0 ) return null;
 
-		for ( let i = 0; i < extensions.length; i ++ ) {
+		for ( const callback of extensions.values() ) {
 
-			const extension = extensions[ i ]();
+			const extension = callback();
 			// TODO(extensions): do we need different type data per function at all?! this gives us
 			// root level data + data from the .type registered at extension creation time
 			// which I *think* should be enough for now?
 			// unless different functions implemented within a single extension need to reference
 			// different data types.. in which case we'll need more info !
-			extension.setTileset( this.tilesRenderer.rootTileset );
+			extension.useTileset( tileset );
 			const data = getExtensionSpecificData( extension.name, getExtensionTypeData( extension.type, obj ) );
 			const func = getFunction( extension, funcName );
 			if ( func ) {
@@ -121,43 +156,109 @@ export class ExtensionSystem {
 	 * wheter each extension is a singleton or should create 1 extension
 	 * instance per invocation.
 	 *
-	 * @param callback: ( tilesRenderer: TilesRenderer ) => T extends ExtensionBase
+	 * @param { ( tilesRenderer: TilesRenderer ) => T extends ExtensionBase } callback
+	 * @returns { { cancel: () => boolean, renew: () => boolean, active: () => boolean, callback } } registration
 	 */
 	register( callback ) {
 
-		// create an instance so that we can register by implemented function
 		const ext = callback();
-		for ( const fname of SUPPORTED_FUNCTIONS ) {
-
-			if ( fname in ext ) {
-
-				const functionCallbacks = this.functions.get( fname ) || [];
-				if ( functionCallbacks.indexOf( callback ) === - 1 ) {
-
-					functionCallbacks.push( callback );
-
-				}
-				this.functions.set( fname, functionCallbacks );
-
-			}
-
-		}
-
-		// track as registered
-		this.extensionsRegistered.add( ext.name );
-		return this;
+		const name = ext.name;
+		const registration = {
+			active: () => this.extensionsByName.get( name ).size > 0,
+			cancel: () => this._unregister( callback ),
+			renew: () => this._register( callback ),
+			callback,
+		};
+		registration.renew();
+		return registration;
 
 	}
 
-	unregister( type, callback ) {
+	/** Returns true if callback is added to the tracked set of resources */
+	_register( callback ) {
 
-		// TODO(extensions): implement unregister once we narrow down the
-		// ways they need to be tracked.
-		throw new Error( 'unregister not implemented yet' );
+		let changed = false;
+		const { extensionsByName, extensionsByFunc, extensionsRegistered } = this;
+		const extensionInstance = callback();
+		const name = extensionInstance.name;
+		const byName = ( extensionsByName.get( name ) || new Set() );
+		const nsize = byName.size;
+
+		SUPPORTED_FUNCTIONS.forEach( ( fname ) => {
+
+			const byFname = ( extensionsByFunc.get( fname ) || new Set() );
+			const fsize = byFname.size;
+			if ( fname in extensionInstance ) {
+
+				extensionsByFunc.set( fname, byFname.add( callback ) );
+				extensionsByName.set( name, byName.add( callback ) );
+
+			}
+			changed = fsize !== byFname.size || byName.size !== nsize;
+
+		} );
+
+		// track as registered still needed?
+		extensionsRegistered.add( name );
+
+		// return whether this call had some effect on tracked extensions
+		return changed;
+
+	}
+
+	/** Returns true if tracked extension usage has changed */
+	_unregister( callback ) {
+
+		let changed = false;
+		const { extensionsByName, extensionsByFunc, extensionsRegistered } = this;
+		const extensionInstance = callback();
+		const name = extensionInstance.name;
+		const byName = ( extensionsByName.get( name ) || new Set() );
+		const nsize = byName.size;
+
+		SUPPORTED_FUNCTIONS.forEach( ( fname ) => {
+
+			const byFname = ( extensionsByFunc.get( fname ) || new Set() );
+			const fsize = byFname.size;
+			if ( fname in extensionInstance ) {
+
+				extensionsByFunc.set( fname, byFname.delete( callback ) );
+
+			}
+			if ( ! byFname.has( fname ) ) {
+
+				extensionsByName.set( name, byName.delete( callback ) );
+
+			}
+
+			changed = byFname.size !== fsize || byName.size !== nsize;
+
+		} );
+
+		// if no callbacks are registered any longer, remove from the overall set
+		if ( ! byName.has( name ) ) {
+
+			extensionsRegistered.delete( name );
+
+		}
+
+		// return whether _unregister call had some effect on tracked extensions
+		return changed;
 
 	}
 
 }
+
+/**
+ * Map of functions which extract the data required for each type of extension
+ * - TBD: may need info from multiple places?
+ */
+const ExtractTypeData = Object.freeze( {
+	[ ExtensionType.ASSET ]: ( tileset ) => tileset && tileset[ ExtensionType.ASSET ] && tileset[ ExtensionType.ASSET ].extensions || null,
+	[ ExtensionType.CONTENT ]: ( tileOrTileset ) => tileOrTileset && tileOrTileset[ ExtensionType.CONTENT ] && tileOrTileset[ ExtensionType.CONTENT ].extensions || null,
+	[ ExtensionType.TILE ]: ( tile ) => tile && tile.extensions || null,
+	[ ExtensionType.TILESET ]: ( tileset ) => tileset && tileset.extensions || null,
+} );
 
 /** Return valid function if one exists as part of a valid ExtensionBase or null. */
 function getFunction( extension, fn ) {
@@ -180,7 +281,7 @@ function getFunction( extension, fn ) {
 
 	if ( functionAllowed && implementation ) {
 
-		return implementation;
+		return implementation.bind( extension );
 
 	}
 

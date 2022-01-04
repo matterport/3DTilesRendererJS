@@ -1,5 +1,5 @@
 import { LoadingManager } from 'three';
-import { ExtensionBase } from './index.js';
+import { ExtensionBase } from './index';
 
 export class GLTFExtension extends ExtensionBase {
 
