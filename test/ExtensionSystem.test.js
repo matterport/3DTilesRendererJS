@@ -89,6 +89,27 @@ describe( 'ExtensionSystem', () => {
 
 		} );
 
+		it( 'useFunction gets tile.content extension data', () => {
+
+			const tileset = TILESETS.vendorOptional;
+			const extName = TILESETS.EXT_NAMES.VENDOR_optional_extension;
+			const extensions = new ExtensionSystem().useTileset( tileset );
+			expect( extensions.has( extName ) ).toEqual( false );
+			expect( extensions.requires( extName ) ).toEqual( false );
+			extensions.register( () => new VendorOptionalContentExtension() );
+
+			// this extension only implements fetch, so parse is a nop
+			let response = extensions.useFunction( 'parse', tileset.root.children[ 0 ] );
+			expect( response ).toBeNull();
+
+			// fetch gets data from the extension blobs
+			response = extensions.useFunction( 'fetch', tileset.root.children[ 0 ] );
+			expect( response ).not.toBeNull();
+			expect( response.tileset.details ).toEqual( [ 'some', 'tileset', 'wide', 'content' ] );
+			expect( response.tile.details ).toEqual( 'from tile.content.extensions.VENDOR_optional_extension' );
+
+		} );
+
 	} );
 
 	describe( 'requires', () => {

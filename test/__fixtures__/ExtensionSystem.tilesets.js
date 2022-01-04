@@ -81,6 +81,26 @@ const vendorOptionalContent = {
 			"details": [ "some", "tileset", "wide", "content" ]
 		},
 	},
+	"root": {
+		"children": [
+			{
+				"content": {
+					"uri": `optionalExtension.glb`,
+					"extensions": {
+						"VENDOR_optional_extension": {
+							"details": "from tile.content.extensions.VENDOR_optional_extension"
+						},
+					}
+				},
+				"boundingVolume": {
+					"box": [ 68, - 22, 4, 74, 0, 0, 0, - 29, 0, 0, 0, 6 ]
+				},
+				"geometricError": 0.5,
+				"refine": "REPLACE",
+				"children": [ ]
+			}
+		]
+	}
 };
 
 export const TILESETS = {

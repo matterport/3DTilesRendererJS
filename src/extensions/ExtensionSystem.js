@@ -129,12 +129,12 @@ export class ExtensionSystem {
 
 			const extension = callback();
 			// TODO(extensions): do we need different type data per function at all?! this gives us
-			// root level data + data from the .type registered at extension creation time
+			// root level data + data from the .extensionType registered at extension creation time
 			// which I *think* should be enough for now?
 			// unless different functions implemented within a single extension need to reference
 			// different data types.. in which case we'll need more info !
 			extension.useTileset( tileset );
-			const data = getExtensionSpecificData( extension.name, getExtensionTypeData( extension.type, obj ) );
+			const data = getExtensionSpecificData( extension.name, getExtensionTypeData( extension.extensionType, obj ) );
 			const func = getFunction( extension, funcName );
 			if ( func ) {
 
