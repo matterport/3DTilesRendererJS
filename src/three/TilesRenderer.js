@@ -18,6 +18,8 @@ import {
 	convertTileTransform,
 } from './ThreeTileUtils.js';
 
+import { GLTFExtension } from '../extensions/3DTILES_content_gltf.js';
+
 const INITIAL_FRUSTUM_CULLED = Symbol( 'INITIAL_FRUSTUM_CULLED' );
 const tempMat = new Matrix4();
 const tempMat2 = new Matrix4();
@@ -104,6 +106,11 @@ export class TilesRenderer extends TilesRendererBase {
 			}
 
 		};
+
+		// TODO(extensions): I'd rather only add this if the tileset supports gltf AND gltf isn't already registered
+		// so this should likely go along with fetchRootTileset
+		// but that's in TilesRendererBase, and GLTF is threejs specific
+		this.extensions.register( () => new GLTFExtension( manager ) );
 
 	}
 
