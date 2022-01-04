@@ -17,6 +17,7 @@ import { PNTSLoader } from './three/PNTSLoader.js';
 import { I3DMLoader } from './three/I3DMLoader.js';
 import { CMPTLoader } from './three/CMPTLoader.js';
 import { GLTFExtensionLoader } from './three/GLTFExtensionLoader.js';
+import * as ThreeTileUtils from './three/ThreeTileUtils.js';
 
 import { TilesRendererBase } from './base/TilesRendererBase.js';
 import { LoaderBase } from './base/LoaderBase.js';
@@ -24,6 +25,7 @@ import { B3DMLoaderBase } from './base/B3DMLoaderBase.js';
 import { I3DMLoaderBase } from './base/I3DMLoaderBase.js';
 import { PNTSLoaderBase } from './base/PNTSLoaderBase.js';
 import { CMPTLoaderBase } from './base/CMPTLoaderBase.js';
+import { isTileDownloadFinished } from './base/traverseFunctions.js';
 
 import { LRUCache } from './utilities/LRUCache.js';
 import { PriorityQueue } from './utilities/PriorityQueue.js';
@@ -46,6 +48,9 @@ export {
 
 	LRUCache,
 	PriorityQueue,
+
+	isTileDownloadFinished,
+	ThreeTileUtils,
 
 	NONE,
 	SCREEN_ERROR,
