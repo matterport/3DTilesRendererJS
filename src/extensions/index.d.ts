@@ -50,6 +50,7 @@ export abstract class ExtensionBase {
     constructor( extensionType: ExtensionType, extensionName: string );
     name: Readonly<string>;
     type: Readonly<ExtensionType>;
+    data: Record<string, any>;
     useTileset( tileset?: Tileset ): ExtensionBase;
 
 }
